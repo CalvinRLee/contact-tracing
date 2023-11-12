@@ -1,0 +1,31 @@
+{
+  "InfectedLocations": [
+    {
+      "id": 1,
+      "location": "Rundle Mall",
+      "date": "2023-11-12",
+      "from": "2023-11-12T18:15:00.000Z",
+      "to": "2023-11-12T18:15:30.000Z"
+    },
+    {
+      "id": 2,
+      "location": "University of Adelaide",
+      "date": "2023-11-12",
+      "from": "2023-11-12T18:15:00.000Z",
+      "to": "2023-11-12T18:15:30.000Z"
+    },
+    {
+      "location": "University of Adelaide",
+      "date": "2023-11-12",
+      "from": "2023-11-12T18:18:00.000Z",
+      "to": "2023-11-12T18:18:30.000Z",
+      "id": 3
+    }
+  ],
+  "User": [
+    {
+      "username": "blabla",
+      "password": "blabla"
+    }
+  ]
+}
