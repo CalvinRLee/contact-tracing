@@ -16,15 +16,10 @@ export default function Dashboard() {
       fetchInfectedLocations()
       fetchUserLocations()
      }  
-     //evaluate data
+     //evaluate data and decide infect state
      if(userLocations.length > 0 && infectedLocations.length > 0){
       traceContacts()
      }
-
-     //update dashboard indicator if tracing changed the result
-    //if(traceContacts != infected){
-      //setInfected(prev => !prev)
-    //}
   },[userLocations,infectedLocations]);
 
   //Compare user locations with infected locations
@@ -48,17 +43,15 @@ export default function Dashboard() {
         let infectedTo =  Date.parse(infectedSpot.to)
 
         //Check matching location
-        if(userLocation == infectedLocation && userDate == infectedDate){
+        if(userLocation === infectedLocation && userDate === infectedDate){
           //Check matching time
           if(userFrom <= infectedTo && userTo >= infectedFrom){
-            console.log(userLocation)
             setInfected(true)
             return;
           }
         }      
       }
-  }
-
+    }
   }
 
   //fetch infected locations
@@ -86,19 +79,33 @@ export default function Dashboard() {
   }
 
   //post new location
-  async function addNewLocation(event){
-    console.log(event)
-    let date = document.getElementById("Date").value
-    let from = date+"T18:"+document.getElementById("From").value+".000Z"
-    let to = date+"T18:"+document.getElementById("To").value+".000Z"
+  async function addNewLocation(){
+    //Input Sanitization for location string
+    var string = require("string-sanitizer");
+    let locationVal = string.sanitize(document.getElementById("Location").value)
+    
+    //Input Validation
+    let dateInput = document.getElementById("Date").value
+    let dateVal = new Date(dateInput)
+    // Step out if no valid date
+    if (isNaN(dateVal)){
+      return
+    }
+    let fromVal = new Date(dateInput+"T18:"+document.getElementById("From").value+".000Z")
+    let toVal = new Date(dateInput+"T18:"+document.getElementById("To").value+".000Z")
+    // Step out if no valid time
+    if (isNaN(fromVal) ||isNaN(toVal)){
+      return
+    }
+
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        location: document.getElementById("Location").value, 
-        date:  date,
-        from:  from,
-        to:  to })
+        location: locationVal, 
+        date:  dateVal,
+        from:  fromVal,
+        to:  toVal })
     };
     await fetch("http://localhost:8080/Locations", requestOptions);
   }
@@ -137,17 +144,17 @@ export default function Dashboard() {
           <br />
           <label>
               Date:
-              <input type="datetime" placeholder="yyyy-mm-dd" id="Date" required/>
+              <input type="date" placeholder="yyyy-mm-dd" id="Date" required />
           </label>
           <br />
           <label>
               From:
-              <input type="datetime" placeholder="hh:mm" id="From" required/>
+              <input type="time" placeholder="hh:mm" id="From" required/>
           </label>
           <br />
           <label>
               Until:
-              <input type="datetime" placeholder="hh:mm" id="To" required/>
+              <input type="time" placeholder="hh:mm" id="To" required/>
           </label>
           <br />
           <input type="submit" value="Submit" />
