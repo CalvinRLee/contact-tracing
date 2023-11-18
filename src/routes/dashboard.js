@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-
+import globalVal from "../components/globalVar";
 
 export default function Dashboard() {
   const [infected, setInfected] = useState(false);
@@ -9,6 +9,7 @@ export default function Dashboard() {
 
   // trigger on initial load and changes to userLocations
   useEffect(() => {   
+
     //load data
      if(initialLoad){
       setInitialLoad(false)
@@ -16,6 +17,7 @@ export default function Dashboard() {
       fetchInfectedLocations()
       fetchUserLocations()
      }  
+     console.log(userLocations)
      //evaluate data and decide infect state
      if(userLocations.length > 0 && infectedLocations.length > 0){
       traceContacts()
@@ -28,6 +30,8 @@ export default function Dashboard() {
     if(infected){
       return
     }
+
+    //Data was validated and sanitzed before inserting to database, so we can trust it
     for(let i = 0; i < userLocations.length; i++) {
       let userSpot = userLocations[i];
       let userLocation = userSpot.location
@@ -60,9 +64,9 @@ export default function Dashboard() {
       method: "GET",
     };
 
-    await fetch("http://localhost:8000/InfectedLocations", requestOptions)
+    await fetch("http://localhost:8080/InfectedLocations", requestOptions)
       .then((response) => response.json())
-      .then((result) => setInfectedLocations(result))
+      .then((result) => setInfectedLocations(result["InfectedLocations"]))
       .catch((error) => console.log("error", error));
   }
 
@@ -71,19 +75,21 @@ export default function Dashboard() {
     var requestOptions = {
       method: "GET",
     };
-
-    await fetch("http://localhost:8080/Locations", requestOptions)
+    await fetch("http://localhost:8081/Locations", requestOptions)
       .then((response) => response.json())
-      .then((result) => setUserLocations(result))
+      .then((result) => {
+        console.log(result)
+        setUserLocations(result)})
       .catch((error) => console.log("error", error));
   }
 
   //post new location
-  async function addNewLocation(){
-    //Input Sanitization for location string
-    var string = require("string-sanitizer");
-    let locationVal = string.sanitize(document.getElementById("Location").value)
-    
+  async function addNewLocation(event){
+    event.preventDefault();
+    //Input Sanitization for location string - remove anything that is not alphanumeric
+    var sanitizer = require("string-sanitizer");
+    let locationVal = sanitizer.sanitize(document.getElementById("Location").value)
+
     //Input Validation
     let dateInput = document.getElementById("Date").value
     let dateVal = new Date(dateInput)
@@ -98,33 +104,40 @@ export default function Dashboard() {
       return
     }
 
+    let msgContent = { 
+      location: locationVal, 
+      date:  dateVal,
+      from:  fromVal,
+      to:  toVal }
+
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(msgContent)
+    };
+    await fetch("http://localhost:8081/Locations", requestOptions);
+
+    setUserLocations(oldArray => [...oldArray, msgContent]);
+  }
+
+  //post user locations to server database
+  function reportPositiveTest(){
+    let encryptedLocations = []
+    for(let i = 0; i < userLocations.length; i++) {
+      let userSpot = userLocations[i];
+      encryptedLocations.push({ 
+        location: globalVal.publicKey.encrypt(userSpot.location), 
+        date: globalVal.publicKey.encrypt(userSpot.date),
+        from: globalVal.publicKey.encrypt(userSpot.from),
+        to: globalVal.publicKey.encrypt(userSpot.to)})
+    }
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        location: locationVal, 
-        date:  dateVal,
-        from:  fromVal,
-        to:  toVal })
+        locations: encryptedLocations})
     };
-    await fetch("http://localhost:8080/Locations", requestOptions);
-  }
-
-  //post user locations to infected areas
-  function reportPositiveTest(){
-    for(let i = 0; i < userLocations.length; i++) {
-      let userSpot = userLocations[i];
-      const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          location: userSpot.location, 
-          date:  userSpot.date,
-          from:  userSpot.from,
-          to:  userSpot.to })
-      };
-      fetch("http://localhost:8000/InfectedLocations", requestOptions);
-    }
+    fetch("http://localhost:8080/InfectedLocations", requestOptions);
     setInfected(true)
   }
 
