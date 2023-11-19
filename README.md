@@ -1,28 +1,29 @@
 ## Introduction
-Contact Tracing Protype as assignment for "Secure Software Engineering"-class.
+Contact Tracing Protype as assignment for "Secure Software Engineering"-class.\
 Implemented security features:
 - User authentication through login restriction
 - Asymmetric Encryption of payload content between client and server
 - Encryption using a secret for data storage on the server
 - Input sanitization on client side
-- Input validation on server side
+- Fail safe page for access to non existing urls
 
-## Available Scripts
+## Setup Instructions
 
-In the project directory, you can run:
+### Requirements
+Node version >= 16.15.0
 
-### `npm start`
+### Start
+`git clone https://github.com/AndiDreeke/contact-tracing.git` \
+`cd contact-tracing` \
+`npm start` \
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Start the mock user database in new command line: \
+`json-server --watch userDatabase.json --port 8081` \
 
-### `run mock user database`
-json-server --watch userDatabase.json --port 8081
+Start the mock express server in new command line: \
+`cd backend_server`\
+`node app`\
 
-### `run backend server`
-cd backend_server
-node app
-
-
-"username": "test-user",
-"password": "secretpassword"
+### Credentials to access
+Username: "test-user",\
+Password: "secretpassword"
