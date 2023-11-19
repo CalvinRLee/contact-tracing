@@ -1,26 +1,16 @@
 import {useNavigate} from "react-router-dom"
 import {useEffect} from 'react';
-import { pki } from "node-forge";
 import globalVal from "../components/globalVar";
+import fetchPrivateKey from "../components/fetchPrivateKey";
 
 export default function Login() {
   const navigate = useNavigate();
 
   //get public key from server on the very first load of website
   useEffect(() => {   
+    localStorage.setItem("isAuthenticated", false)
     fetchPrivateKey()
   },[]);
-
-  async function fetchPrivateKey(){
-    var requestOptions = {
-      method: "GET",
-    };
-
-    await fetch("http://localhost:8080/Key", requestOptions)
-      .then((response) => response.json())
-      .then((result) => globalVal.publicKey = pki.publicKeyFromPem(result["publicKey"]))
-      .catch((error) => console.log("error", error));
-  }
 
   async function authenticate()
   {
@@ -45,8 +35,8 @@ export default function Login() {
   {
     event.preventDefault();
       if(await authenticate()){
+        localStorage.setItem("isAuthenticated", true)
         alert("Login successful")
-        globalVal.isAuthenticated = true
         navigate("/dashboard");
       }
       else{
@@ -67,7 +57,7 @@ export default function Login() {
                 Password:
                 <input type="text" name="password" required id="Password"/>
             </label>
-            <input type="submit" value="Submit" />
+            <input type="submit" value="Login" />
           </form>
         </div>
         <div id="detail"></div>

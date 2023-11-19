@@ -1,11 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import globalVal from "../components/globalVar";
+import fetchPrivateKey from "../components/fetchPrivateKey";
+import { useNavigate} from "react-router-dom";
 
 export default function Dashboard() {
   const [infected, setInfected] = useState(false);
   const [infectedLocations, setInfectedLocations] = useState([])
   const [userLocations, setUserLocations] = useState([])
   const [initialLoad, setInitialLoad] = useState(true)
+  const navigate = useNavigate();
 
   // trigger on initial load and changes to userLocations
   useEffect(() => {   
@@ -14,6 +17,7 @@ export default function Dashboard() {
      if(initialLoad){
       setInitialLoad(false)
 
+      fetchPrivateKey()
       fetchInfectedLocations()
       fetchUserLocations()
      }  
@@ -140,10 +144,18 @@ export default function Dashboard() {
     fetch("http://localhost:8080/InfectedLocations", requestOptions);
     setInfected(true)
   }
+  function logOut(){
+    localStorage.setItem("isAuthenticated", false)
+    navigate("/");
+  }
 
   return(
     <div>
       <h2>Dashboard</h2>
+      <div>
+        <button onClick={logOut}>Logout</button>
+        <br />
+      </div>
       {infected && <img src={process.env.PUBLIC_URL + '/bad.png'} alt="Logo" />}
       {!infected && <img src={process.env.PUBLIC_URL + '/good.png'} alt="Logo" />}
 

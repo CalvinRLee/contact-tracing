@@ -5,7 +5,6 @@ import "./index.css";
 import Login from "./routes/login";
 import ErrorPage from "./routes/error-page";
 import Dashboard from "./routes/dashboard"
-import globalVal from "./components/globalVar";
 
 const router = createBrowserRouter([
   {
@@ -19,10 +18,11 @@ const router = createBrowserRouter([
     
     //Deny access if not authenticated
     loader: async ({ params }) => {
-      if (!globalVal.isAuthenticated) {
-        return redirect('/');
+      let isAuth = localStorage.getItem("isAuthenticated")
+      if (isAuth === "true") {
+        return null
       }
-      return null;
+      return redirect('/')
     }
   }
 ]);
