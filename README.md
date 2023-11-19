@@ -15,14 +15,16 @@ Node version >= 16.15.0
 ### Start
 `git clone https://github.com/AndiDreeke/contact-tracing.git` \
 `cd contact-tracing` \
-`npm start` \
+`npm install` \
+`npm start` 
 
 Start the mock user database in new command line: \
 `json-server --watch userDatabase.json --port 8081` \
 
 Start the mock express server in new command line: \
 `cd backend_server`\
-`node app`\
+`npm install`\
+`node app`
 
 ### Credentials to access
 Username: "test-user",\
