@@ -52,7 +52,6 @@ function authenticate(user,password){
     return false
 }
 function addNewInfectedLocations(newLocations){
-    console.log(newLocations)
     for(let i = 0; i < newLocations.length; i++) {
         newLocation = newLocations[i]
         infectedLocationStore.push({ 

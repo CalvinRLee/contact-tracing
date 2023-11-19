@@ -21,7 +21,6 @@ export default function Dashboard() {
       fetchInfectedLocations()
       fetchUserLocations()
      }  
-     console.log(userLocations)
      //evaluate data and decide infect state
      if(userLocations.length > 0 && infectedLocations.length > 0){
       traceContacts()
@@ -82,7 +81,6 @@ export default function Dashboard() {
     await fetch("http://localhost:8081/Locations", requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        console.log(result)
         setUserLocations(result)})
       .catch((error) => console.log("error", error));
   }
